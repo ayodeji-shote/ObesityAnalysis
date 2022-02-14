@@ -7,6 +7,7 @@ library(ggplot2)
 data("gapminder")
 # Summarizes the line of code as a viable data frame  
 summary(gapminder)
+View(gapminder)
 # We can call a specific function using the columns of the data frame.
 mean(gapminder$gdpPercap)
 #we can now attach this function to an object in this case x 
