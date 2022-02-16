@@ -10,40 +10,48 @@ library(readr)
 library(daff)
 library(sqldf)
 fooddata <- read_csv("Data/dietary-compositions-by-commodity-group.csv")
-ObesityData <- read_csv("C:/Users/ayode/Music/HonoursProject/Data/share-of-adults-who-are-overweight.csv")
+Obesity <- read_csv("C:/Users/ayode/Music/HonoursProject/Data/share-of-adults-who-are-overweight.csv")
 worldPop <- read_csv("Data/historic-and-un-pop-projections-by-age.csv")
-ObesityData <- ObesityData %>% mutate(Entity = factor(Entity))
+Obesity <- Obesity %>% mutate(Entity = factor(Entity))
+View(Obesity)
 #This is the dataframe of the countries with their percentage of the population that is obese. 
-attach(ObesityData)
-ObesityData%>%
-  select(Entity,Overweight,Code)%>%
-  filter(Code !="NA") %>%
-  group_by(Entity) %>%
+attach(Obesity)
+ObesityData<-Obesity%>%
+  select(Entity,Overweight,Code,Year)%>%
+  group_by(Entity,Year) %>%
   summarise(Total = sum(Overweight))
 attach(worldPop)
 #This is the dataframe of the countries with their year and adult population
-TPop <-worldPop%>%
-  select(Entity,Code,Year,Total,`under age 15`)%>%
-  filter(Code !="NA") %>%
-  filter(Year>1974 & Year<2016) %>%
-  group_by(Year,Entity) %>%
-  summarise(Totalpop = Total-`under age 15`)
+#TPop <-worldPop%>%
+ # select(Entity,Code,Year,Total,`under age 15`)%>%
+  #filter(Code !="NA") %>%
+  #filter(Year>1974 & Year<2017) %>%
+  #group_by(Year,Entity) %>%
+  #summarise(Totalpop = Total-`under age 15`)
 # This is the dataframe of the countries with their total weight
 properdata<-ObesityData%>%
-  filter(Code !="NA") %>%
   select(Entity,Overweight,Year)%>%
   group_by(Year,Entity)
 
-ObesityData %>% 
-  filter(Entity =='Afghanistan')  %>% 
-  ggplot(aes(x=(Year), y=Overweight))+
-  geom_point(alpha = 0.9)+
-  geom_smooth(method=lm)
+#WPop <-worldPop%>%
+ # select(Entity,Code,Year,Total,`under age 15`)%>%
+  #filter(Code !="NA") %>%
+  #filter(Year>1974 & Year<2017) %>%
+  #group_by(Year) %>%
+  #summarise(tpop =sum(Totalpop = Total-`under age 15`))
 
-summary(lm(Overweight ~ year))
+sorted<-merge(properdata,TPop)
 
-sorted<-merge(properdata,Temppop)
-rm(Temppop)
+#finalvalue= sorted %>%
+  #select(Year,Entity,Overweight,Totalpop)%>%
+  #group_by(Year,Entity,Totalpop)%>%
+  #summarise(obesepop = (Overweight/182)*Totalpop)
+
+#finalvalue= finalvalue %>%
+  #select(Year,Entity,Totalpop,obesepop)%>%
+  #group_by(Year)%>%
+  #summarise(worldobese = sum(worldobese = (obesepop/WPop$tpop)*100))
+#rm(Temppop)
 
 
 
