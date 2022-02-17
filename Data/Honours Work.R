@@ -9,55 +9,49 @@ library(dplyr)
 library(readr)
 library(daff)
 library(sqldf)
-fooddata <- read_csv("Data/dietary-compositions-by-commodity-group.csv")
+Food <- read_csv("Data/dietary-compositions-by-commodity-group.csv")
 Obesity <- read_csv("C:/Users/ayode/Music/HonoursProject/Data/share-of-adults-who-are-overweight.csv")
 worldPop <- read_csv("Data/historic-and-un-pop-projections-by-age.csv")
 Obesity <- Obesity %>% mutate(Entity = factor(Entity))
-View(Obesity)
+View(Food)
 #This is the dataframe of the countries with their percentage of the population that is obese. 
 attach(Obesity)
 ObesityData<-Obesity%>%
-  select(Entity,Overweight,Code,Year)%>%
-  group_by(Entity,Year) %>%
-  summarise(Total = sum(Overweight))
-attach(worldPop)
-#This is the dataframe of the countries with their year and adult population
-#TPop <-worldPop%>%
- # select(Entity,Code,Year,Total,`under age 15`)%>%
-  #filter(Code !="NA") %>%
-  #filter(Year>1974 & Year<2017) %>%
-  #group_by(Year,Entity) %>%
-  #summarise(Totalpop = Total-`under age 15`)
-# This is the dataframe of the countries with their total weight
-properdata<-ObesityData%>%
   select(Entity,Overweight,Year)%>%
-  group_by(Year,Entity)
+  filter(Year<2014) %>%
+  filter(Entity=="World") %>%
+  group_by(Year)
+#This is to get the food 
+attach(Food)
+FoodData<-Food%>%
+  select(Entity,Code,Year,Sugar)%>%
+  filter(Year>1974 & Year<2014) %>%
+  group_by(Entity,Sugar)
 
-#WPop <-worldPop%>%
- # select(Entity,Code,Year,Total,`under age 15`)%>%
-  #filter(Code !="NA") %>%
-  #filter(Year>1974 & Year<2017) %>%
-  #group_by(Year) %>%
-  #summarise(tpop =sum(Totalpop = Total-`under age 15`))
+properdata<-Obesity%>%
+  select(Entity,Overweight,Year)%>%
+  filter(Year>1974 & Year<2014) %>%
+  group_by(Entity)
 
-sorted<-merge(properdata,TPop)
+properfooddata<-FoodData%>%
+  select(Entity,Sugar,Year)%>%
+  #filter(Year==2013)%>%
+  group_by(Entity)
 
-#finalvalue= sorted %>%
-  #select(Year,Entity,Overweight,Totalpop)%>%
-  #group_by(Year,Entity,Totalpop)%>%
-  #summarise(obesepop = (Overweight/182)*Totalpop)
+sorted<-merge(properfooddata,properdata)
 
-#finalvalue= finalvalue %>%
-  #select(Year,Entity,Totalpop,obesepop)%>%
-  #group_by(Year)%>%
-  #summarise(worldobese = sum(worldobese = (obesepop/WPop$tpop)*100))
-#rm(Temppop)
+Finalfood<-sorted%>%
+  select(Entity,Sugar,Year)%>%
+  group_by(Year)%>%
+  summarise(totalSugar = sum(Sugar/138))
 
+keydataset<-merge(ObesityData,Finalfood)
 
+keydatasettrain<-keydataset%>%
+  filter(Year<2000)
+keydatasettest<-keydataset%>%
+  filter(Year>2000)
 
-
-
-
-
+rm(Food,Obesity,ObesityData,properdata,properdata1)
 
 
